@@ -1,0 +1,356 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {},
+     "inputWidgets": {},
+     "nuid": "466b8c77-2bac-4a7b-9b46-1a463c416b56",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "source": [
+    "## RDD"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {
+      "byteLimit": 2048000,
+      "rowLimit": 10000
+     },
+     "inputWidgets": {},
+     "nuid": "d44ba78a-a9d9-42b9-8884-413d856a9cae",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "outputs": [],
+   "source": [
+    "tuples = [('A', 7), ('A', 8), ('A', -4),\n",
+    "          ('B', 3), ('B', 9), ('B', -1),\n",
+    "          ('C', 1), ('C', 5)]\n",
+    "rdd = spark.sparkContext.parallelize(tuples)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {
+      "byteLimit": 2048000,
+      "rowLimit": 10000
+     },
+     "inputWidgets": {},
+     "nuid": "1e4c11d2-f76f-4beb-ad79-769610e3063b",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "[('A', 7), ('A', 8), ('B', 3), ('B', 9), ('C', 1), ('C', 5)]"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# zadania wybierz wartości z tuple większe od zera wstaw brakujący kod <....>\n",
+    "positives = rdd.filter(lambda x: x[1] > 0)\n",
+    "positives.collect()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {
+      "byteLimit": 2048000,
+      "rowLimit": 10000
+     },
+     "inputWidgets": {},
+     "nuid": "f942212f-cdad-4723-9a90-1c5bde9e51ef",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "[('B', 12), ('C', 6), ('A', 15)]"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# policz sumę wartościdla poszczególnych kluczy (A, B, C) - wstaw brakujący kod <....>\n",
+    "\n",
+    "sum_and_avg = positives.groupByKey().mapValues(lambda values: sum(values))\n",
+    "sum_and_avg.collect()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {
+      "byteLimit": 2048000,
+      "rowLimit": 10000
+     },
+     "inputWidgets": {},
+     "nuid": "27a550bb-8e99-4352-81b1-23943fb0d221",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "[('B', (12, 2)), ('C', (6, 2)), ('A', (15, 2))]"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "sum_count = positives.groupByKey().mapValues(\n",
+    "    lambda values: (sum(values), len(values))\n",
+    ")\n",
+    "\n",
+    "sum_count.collect()\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {
+      "byteLimit": 2048000,
+      "rowLimit": 10000
+     },
+     "inputWidgets": {},
+     "nuid": "a4f79e21-f95b-4941-aa5c-d71abb44e201",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "[('B', (12, 2)), ('C', (6, 2)), ('A', (15, 2))]"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "\n",
+    "# 2. aggregate (sum, count) per key\n",
+    "sum_count_agg = sum_count.reduceByKey(lambda x, y: (x[0] + y[0], x[1] + y[1]))\n",
+    "sum_count_agg.collect()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {
+      "byteLimit": 2048000,
+      "rowLimit": 10000
+     },
+     "inputWidgets": {},
+     "nuid": "c4b28d85-e67a-41cc-a203-aa5528b45d11",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "[('B', (12, 6.0)), ('C', (6, 3.0)), ('A', (15, 7.5))]"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# zmapuj i wylicz średnią na każdy klucz (A, B, C) używająć funkcji mapValues - wstaw brakujący kod <....>\n",
+    "\n",
+    "sum_and_avg = sum_count_agg.mapValues(lambda v: (v[0], v[0] / v[1]))\n",
+    "sum_and_avg.collect()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {
+      "byteLimit": 2048000,
+      "rowLimit": 10000
+     },
+     "inputWidgets": {},
+     "nuid": "6f87a9cb-28ac-4488-ab6e-e9db08110bcf",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "[('fox', 6),\n",
+       " ('dog', 5),\n",
+       " ('fox', 3),\n",
+       " ('dog', 8),\n",
+       " ('cat', 1),\n",
+       " ('cat', 2),\n",
+       " ('cat', 3),\n",
+       " ('cat', 4)]"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    " data = [ \n",
+    "    (\"fox\", 6), (\"dog\", 5), (\"fox\", 3), (\"dog\", 8),\n",
+    "    (\"cat\", 1), (\"cat\", 2), (\"cat\", 3), (\"cat\", 4)\n",
+    "]\n",
+    "\n",
+    "ListaRrdd = sc.parallelize(data) \n",
+    "ListaRrdd.collect()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {
+      "byteLimit": 2048000,
+      "rowLimit": 10000
+     },
+     "inputWidgets": {},
+     "nuid": "a2d61012-ebbe-4ac2-8217-971353d12e15",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "[('fox', 9), ('cat', 10), ('dog', 13)]"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Uzyw funkcji reduceByKey żeby wykonać sumę wartości dla każdego klucza \n",
+    "sum_per_key = ListaRrdd.reduceByKey(lambda a, b: a + b)\n",
+    "sum_per_key.collect()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "application/vnd.databricks.v1+cell": {
+     "cellMetadata": {
+      "byteLimit": 2048000,
+      "rowLimit": 10000
+     },
+     "inputWidgets": {},
+     "nuid": "118f2fc2-fee2-4905-bdb6-a1bd6e76133c",
+     "showTitle": false,
+     "tableResultSettingsMap": {},
+     "title": ""
+    }
+   },
+   "outputs": [
+    {
+     "output_type": "execute_result",
+     "data": {
+      "text/plain": [
+       "[]"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Usuń wartości większe niż 4\n",
+    "sum_filtered = sum_per_key.filter(lambda tup_tup: tup_tup[1] < 5)\n",
+    "sum_filtered.collect()"
+   ]
+  }
+ ],
+ "metadata": {
+  "application/vnd.databricks.v1+notebook": {
+   "computePreferences": null,
+   "dashboards": [],
+   "environmentMetadata": null,
+   "inputWidgetPreferences": null,
+   "language": "python",
+   "notebookMetadata": {
+    "pythonIndentUnit": 4
+   },
+   "notebookName": "RDD_Zadania",
+   "widgets": {}
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
